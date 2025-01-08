@@ -1,0 +1,51 @@
+import os
+from pypdf import PdfReader, PdfWriter
+
+def merge_pdfs(pdf_list, output_path):
+    """Merge multiple PDFs into a single PDF."""
+    pdf_writer = PdfWriter()
+    for pdf_file in pdf_list:
+        pdf_reader = PdfReader(pdf_file)
+        for page in pdf_reader.pages:
+            pdf_writer.add_page(page)
+    with open(output_path, 'wb') as out_pdf:
+        pdf_writer.write(out_pdf)
+    print(f"Merged PDFs saved to '{output_path}'")
+
+def split_pdf(input_path, output_folder):
+    """Split a PDF into individual pages."""
+    pdf_reader = PdfReader(input_path)
+    for idx, page in enumerate(pdf_reader.pages, start=1):
+        pdf_writer = PdfWriter()
+        pdf_writer.add_page(page)
+        output_path = os.path.join(output_folder, f"page_{idx}.pdf")
+        with open(output_path, 'wb') as out_pdf:
+            pdf_writer.write(out_pdf)
+        print(f"Saved page {idx} to '{output_path}'")
+
+def rotate_pdf(input_path, output_path, rotation):
+    """Rotate all pages of a PDF by the specified degrees (90, 180, 270)."""
+    pdf_reader = PdfReader(input_path)
+    pdf_writer = PdfWriter()
+    for page in pdf_reader.pages:
+        page.rotate(rotation)  # Rotate page
+        pdf_writer.add_page(page)
+    with open(output_path, 'wb') as out_pdf:
+        pdf_writer.write(out_pdf)
+    print(f"Rotated PDF saved to '{output_path}'")
+
+def extract_text_from_pdf(input_path):
+    """Extract and print text from a PDF."""
+    pdf_reader = PdfReader(input_path)
+    for idx, page in enumerate(pdf_reader.pages, start=1):
+        print(f"--- Page {idx} ---")
+        print(page.extract_text())
+
+if __name__ == "__main__":
+    pdf_files = ["file1.pdf", "file2.pdf"]  # Replace with your file paths
+    output_merged_pdf = "merged_output.pdf"
+    merge_pdfs(pdf_files, output_merged_pdf)
+
+    split_pdf("merged_output.pdf", "split_pages")  # Split pages into 'split_pages' folder
+    rotate_pdf("file1.pdf", "rotated_output.pdf", 90)  # Rotate pages by 90 degrees
+    extract_text_from_pdf("file1.pdf")  # Extract and display text from the PDF
